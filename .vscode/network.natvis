@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Native visualizers for well-known POSIX/glibc network structures.
+
+  Used by the VS Code C/C++ extension (cppdbg) when referenced from launch.json via
+  "visualizerFile" with "showDisplayString": true. Address bytes are kept in network byte
+  order, so the display expressions read the bytes directly (correct on little-endian hosts);
+  ports are byte-swapped to host order for readability.
+
+  glibc-specific: struct in6_addr stores its bytes in __in6_u.__u6_addr8[16].
+  Linux address families: AF_INET = 2, AF_INET6 = 10.
+-->
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <!-- IPv4 address. s_addr is in network byte order; byte 0 is the first dotted octet. -->
+  <Type Name="in_addr">
+    <DisplayString>{s_addr &amp; 0xff,d}.{(s_addr &gt;&gt; 8) &amp; 0xff,d}.{(s_addr &gt;&gt; 16) &amp; 0xff,d}.{(s_addr &gt;&gt; 24) &amp; 0xff,d}</DisplayString>
+  </Type>
+
+  <!-- IPv6 address. Shown as 8 colon-separated 16-bit groups in host order (no :: compression). -->
+  <Type Name="in6_addr">
+    <DisplayString>{__in6_u.__u6_addr8[0]*256+__in6_u.__u6_addr8[1],x}:{__in6_u.__u6_addr8[2]*256+__in6_u.__u6_addr8[3],x}:{__in6_u.__u6_addr8[4]*256+__in6_u.__u6_addr8[5],x}:{__in6_u.__u6_addr8[6]*256+__in6_u.__u6_addr8[7],x}:{__in6_u.__u6_addr8[8]*256+__in6_u.__u6_addr8[9],x}:{__in6_u.__u6_addr8[10]*256+__in6_u.__u6_addr8[11],x}:{__in6_u.__u6_addr8[12]*256+__in6_u.__u6_addr8[13],x}:{__in6_u.__u6_addr8[14]*256+__in6_u.__u6_addr8[15],x}</DisplayString>
+  </Type>
+
+  <!-- sockaddr_in: "a.b.c.d:port" (port shown in host order) -->
+  <Type Name="sockaddr_in">
+    <DisplayString>{sin_addr}:{((sin_port &amp; 0xff) &lt;&lt; 8) | ((sin_port &gt;&gt; 8) &amp; 0xff),d}</DisplayString>
+    <Expand>
+      <Item Name="family">sin_family</Item>
+      <Item Name="port (host)">((sin_port &amp; 0xff) &lt;&lt; 8) | ((sin_port &gt;&gt; 8) &amp; 0xff)</Item>
+      <Item Name="addr">sin_addr</Item>
+    </Expand>
+  </Type>
+
+  <!-- sockaddr_in6: "[addr]:port" -->
+  <Type Name="sockaddr_in6">
+    <DisplayString>[{sin6_addr}]:{((sin6_port &amp; 0xff) &lt;&lt; 8) | ((sin6_port &gt;&gt; 8) &amp; 0xff),d}</DisplayString>
+    <Expand>
+      <Item Name="family">sin6_family</Item>
+      <Item Name="port (host)">((sin6_port &amp; 0xff) &lt;&lt; 8) | ((sin6_port &gt;&gt; 8) &amp; 0xff)</Item>
+      <Item Name="addr">sin6_addr</Item>
+      <Item Name="scope_id">sin6_scope_id</Item>
+      <Item Name="flowinfo">sin6_flowinfo</Item>
+    </Expand>
+  </Type>
+
+  <!-- Generic sockaddr / sockaddr_storage: dispatch on the address family -->
+  <Type Name="sockaddr">
+    <DisplayString Condition="sa_family == 2">{*(sockaddr_in *)this}</DisplayString>
+    <DisplayString Condition="sa_family == 10">{*(sockaddr_in6 *)this}</DisplayString>
+    <DisplayString>sockaddr family={sa_family}</DisplayString>
+  </Type>
+
+  <Type Name="sockaddr_storage">
+    <DisplayString Condition="ss_family == 2">{*(sockaddr_in *)this}</DisplayString>
+    <DisplayString Condition="ss_family == 10">{*(sockaddr_in6 *)this}</DisplayString>
+    <DisplayString>sockaddr_storage family={ss_family}</DisplayString>
+  </Type>
+
+</AutoVisualizer>

@@ -1,0 +1,42 @@
+{
+	"version": 4,
+	"configurations": [
+		{
+			"name": "Linux POSIX (mdnsd, TLS, DNS Push)",
+			"//": "Defines and include paths mirror mDNSPosix/Makefile for `make os=linux` (default prod build with mbedTLS). dnspush=1 is added so the DNS Push code is visible to IntelliSense; it does not affect the build unless you actually pass dnspush=1 to make.",
+			"includePath": [
+				"${workspaceFolder}/mDNSCore",
+				"${workspaceFolder}/mDNSShared",
+				"${workspaceFolder}/mDNSShared/utilities",
+				"${workspaceFolder}/mDNSShared/dns_objects",
+				"${workspaceFolder}/DSO",
+				"${workspaceFolder}/ServiceRegistration",
+				"${workspaceFolder}/mDNSPosix",
+				"${workspaceFolder}/mDNSPosix/objects/prod"
+			],
+			"defines": [
+				"POSIX_BUILD",
+				"MDNS_NO_STRICT=1",
+				"PID_FILE=\"/var/run/mdnsd.pid\"",
+				"MDNS_UDS_SERVERPATH=\"/var/run/mdnsd\"",
+				"_GNU_SOURCE",
+				"HAVE_IPV6",
+				"NOT_HAVE_SA_LEN",
+				"USES_NETLINK",
+				"HAVE_LINUX",
+				"TARGET_OS_LINUX",
+				"POSIX_HAS_TLS",
+				"MDNS_DEBUGMSGS=0",
+				"MDNSRESPONDER_SUPPORTS_COMMON_DNS_PUSH=1"
+			],
+			"compilerPath": "/usr/bin/gcc",
+			"compilerArgs": [
+				"-fwrapv",
+				"-W",
+				"-Wall"
+			],
+			"cStandard": "gnu11",
+			"intelliSenseMode": "linux-gcc-x64"
+		}
+	]
+}

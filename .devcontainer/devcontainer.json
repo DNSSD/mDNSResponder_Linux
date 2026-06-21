@@ -1,0 +1,32 @@
+{
+	"name": "mDNSResponder (Linux/POSIX)",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	// The repo is mounted at /workspaces/<folder-name> by default.
+	"workspaceFolder": "/workspaces/mDNSResponder_Linux",
+
+	// mDNS needs multicast. Host networking lets mdnsd actually talk to the LAN, and works on a
+	// Linux Docker host. On Docker Desktop (Windows/macOS) host networking is limited — building and
+	// debugging still work fine; only live on-LAN mDNS testing is affected. Comment this out if it
+	// prevents the container from starting on your setup.
+	"runArgs": ["--network=host"],
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack"
+			],
+			"settings": {
+				"C_Cpp.default.cStandard": "gnu11",
+				"C_Cpp.default.intelliSenseMode": "linux-gcc-x64"
+			}
+		}
+	},
+
+	// Sanity-check the toolchain after the container is created.
+	"postCreateCommand": "gcc --version | head -n1 && make --version | head -n1 && dpkg -s libmbedtls-dev | sed -n 's/^Version: /mbedtls-dev /p'",
+
+	"remoteUser": "vscode"
+}

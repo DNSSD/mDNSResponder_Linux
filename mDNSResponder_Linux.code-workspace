@@ -1,0 +1,49 @@
+{
+	"folders": [
+		{
+			"name": "mDNSResponder (Linux/POSIX)",
+			"path": "."
+		}
+	],
+	"settings": {
+		// ---- Editor / code style (matches the BSD style used in the sources:
+		//      c-basic-offset 4, indent-tabs-mode nil, fill-column 108) ----
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true,
+		"editor.rulers": [108],
+		"files.trimTrailingWhitespace": true,
+		"files.insertFinalNewline": true,
+		"[makefile]": {
+			"editor.insertSpaces": false
+		},
+		"[c]": {
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true
+		},
+		// Generated build artifacts live under mDNSPosix/objects and mDNSPosix/build
+		"files.exclude": {
+			"**/objects": true,
+			"**/build": true
+		},
+		"search.exclude": {
+			"**/objects": true,
+			"**/build": true
+		},
+		"files.associations": {
+			"*.h": "c",
+			"mdns_strict.h": "c"
+		},
+		// IntelliSense provider (the C/C++ extension reads .vscode/c_cpp_properties.json)
+		"C_Cpp.default.cStandard": "gnu11",
+		"C_Cpp.default.intelliSenseMode": "linux-gcc-x64"
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"ms-vscode.cpptools-extension-pack",
+			"ms-vscode-remote.remote-wsl",
+			"ms-vscode-remote.remote-containers",
+			"ms-azuretools.vscode-docker"
+		]
+	}
+}

@@ -1,0 +1,84 @@
+{
+	"version": "2.0.0",
+	"//": "Primary tasks call `make` directly: use them when the window runs in a Linux context (the .devcontainer, Remote-WSL, or native Linux). The 'WSL host' and 'Docker' tasks are for driving a build from a plain Windows host window instead. The Makefile uses relative paths (../mDNSCore, ...), so it must be invoked with -C mDNSPosix from the repo root.",
+	"options": {
+		"cwd": "${workspaceFolder}"
+	},
+	"presentation": {
+		"reveal": "always",
+		"panel": "shared",
+		"clear": true
+	},
+	"tasks": [
+		{
+			"label": "build: mdnsd (linux · TLS)",
+			"detail": "make os=linux  → build/prod/mdnsd (default build with mbedTLS). Run in devcontainer / Remote-WSL / native Linux.",
+			"type": "shell",
+			"command": "make",
+			"args": ["-C", "mDNSPosix", "os=linux"],
+			"group": { "kind": "build", "isDefault": true },
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "build: all (linux · TLS)",
+			"detail": "make os=linux all  → daemon, libdns_sd, clients, example responders, NetMonitor",
+			"type": "shell",
+			"command": "make",
+			"args": ["-C", "mDNSPosix", "os=linux", "all"],
+			"group": "build",
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "build: mdnsd DEBUG (linux · TLS)",
+			"detail": "make os=linux DEBUG=1  → build/debug/mdnsd with MDNS_DEBUGMSGS=2",
+			"type": "shell",
+			"command": "make",
+			"args": ["-C", "mDNSPosix", "os=linux", "DEBUG=1"],
+			"group": "build",
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "build: mdnsd (linux · no TLS)",
+			"detail": "make os=linux tls=no  → build without mbedTLS (DNS Push/TLS disabled)",
+			"type": "shell",
+			"command": "make",
+			"args": ["-C", "mDNSPosix", "os=linux", "tls=no"],
+			"group": "build",
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "clean (linux)",
+			"detail": "make os=linux clean",
+			"type": "shell",
+			"command": "make",
+			"args": ["-C", "mDNSPosix", "os=linux", "clean"],
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "build: mdnsd (WSL host · linux · TLS)",
+			"detail": "Drive the build from a plain Windows host window via WSL (needs the toolchain installed in the distro).",
+			"type": "shell",
+			"command": "wsl",
+			"args": ["make", "-C", "mDNSPosix", "os=linux"],
+			"group": "build",
+			"problemMatcher": ["$gcc"]
+		},
+		{
+			"label": "build: mdnsd (Docker · debian one-shot)",
+			"detail": "Builds inside a throwaway debian container (installs toolchain each run — slow; prefer reopening in the .devcontainer for repeated use).",
+			"type": "shell",
+			"command": "docker",
+			"args": [
+				"run", "--rm",
+				"-v", "${workspaceFolder}:/src",
+				"-w", "/src/mDNSPosix",
+				"debian:stable-slim",
+				"sh", "-c",
+				"apt-get update && apt-get install -y --no-install-recommends build-essential bison flex libmbedtls-dev && make os=linux"
+			],
+			"group": "build",
+			"problemMatcher": ["$gcc"]
+		}
+	]
+}

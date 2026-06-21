@@ -1,0 +1,58 @@
+{
+	"version": "0.2.0",
+	"//": "These configs assume the window is connected to WSL (Remote-WSL) or Linux, so paths and gdb are native. Note: udsserver binds the UDS at /var/run/mdnsd and main() tries to setuid('nobody'); when run as a normal user you'll just get warnings, but you may need write access to /var/run (or run via sudo) for the UDS to come up.",
+	"configurations": [
+		{
+			"name": "Debug mdnsd (-foreground · WSL)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/mDNSPosix/build/debug/mdnsd",
+			"args": ["-foreground"],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/mDNSPosix",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "gdb",
+			"miDebuggerPath": "/usr/bin/gdb",
+			"visualizerFile": [
+				"${workspaceFolder}/.vscode/mdns.natvis",
+				"${workspaceFolder}/.vscode/network.natvis"
+			],
+			"showDisplayString": true,
+			"preLaunchTask": "build: mdnsd DEBUG (linux · TLS)",
+			"setupCommands": [
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		},
+		{
+			"name": "Debug mDNSResponderPosix (example · WSL)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/mDNSPosix/build/debug/mDNSResponderPosix",
+			"args": ["-v", "1"],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}/mDNSPosix",
+			"environment": [],
+			"externalConsole": false,
+			"MIMode": "gdb",
+			"miDebuggerPath": "/usr/bin/gdb",
+			"visualizerFile": [
+				"${workspaceFolder}/.vscode/mdns.natvis",
+				"${workspaceFolder}/.vscode/network.natvis"
+			],
+			"showDisplayString": true,
+			"preLaunchTask": "build: mdnsd DEBUG (linux · TLS)",
+			"setupCommands": [
+				{
+					"description": "Enable pretty-printing for gdb",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		}
+	]
+}

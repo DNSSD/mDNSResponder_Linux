@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Native visualizers for mDNSResponder value types (mDNSCore/mDNSEmbeddedAPI.h).
+
+  Used by the VS Code C/C++ extension (cppdbg) when referenced from launch.json via
+  "visualizerFile" with "showDisplayString": true.
+
+  The address/port types are "opaque identifiers" stored as byte arrays in network byte order
+  (intentionally NOT integers; see the header's comment). Each underlying union has a typedef
+  name (mDNSOpaque16/32/48/128) plus a semantic alias (mDNSIPPort/mDNSv4Addr/mDNSv6Addr/
+  mDNSEthAddr); entries are provided for both so a match is found whichever name the debugger
+  reports.
+-->
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <!-- mDNSOpaque16 / mDNSIPPort : 2-byte network-order value (port, message id, ...). b[0] = high byte. -->
+  <Type Name="mDNSOpaque16">
+    <DisplayString>{b[0]*256 + b[1],d}</DisplayString>
+    <Expand>
+      <Item Name="host order">b[0]*256 + b[1]</Item>
+      <Item Name="bytes">b</Item>
+    </Expand>
+  </Type>
+  <Type Name="mDNSIPPort">
+    <DisplayString>{b[0]*256 + b[1],d}</DisplayString>
+  </Type>
+
+  <!-- mDNSOpaque32 / mDNSv4Addr : IPv4 address, b[0..3] = dotted octets -->
+  <Type Name="mDNSOpaque32">
+    <DisplayString>{b[0],d}.{b[1],d}.{b[2],d}.{b[3],d}</DisplayString>
+  </Type>
+  <Type Name="mDNSv4Addr">
+    <DisplayString>{b[0],d}.{b[1],d}.{b[2],d}.{b[3],d}</DisplayString>
+  </Type>
+
+  <!-- mDNSOpaque48 / mDNSEthAddr : MAC address -->
+  <Type Name="mDNSOpaque48">
+    <DisplayString>{b[0],x}:{b[1],x}:{b[2],x}:{b[3],x}:{b[4],x}:{b[5],x}</DisplayString>
+  </Type>
+  <Type Name="mDNSEthAddr">
+    <DisplayString>{b[0],x}:{b[1],x}:{b[2],x}:{b[3],x}:{b[4],x}:{b[5],x}</DisplayString>
+  </Type>
+
+  <!-- mDNSOpaque128 / mDNSv6Addr : IPv6 address (host-order hex groups, no :: compression) -->
+  <Type Name="mDNSOpaque128">
+    <DisplayString>{b[0]*256+b[1],x}:{b[2]*256+b[3],x}:{b[4]*256+b[5],x}:{b[6]*256+b[7],x}:{b[8]*256+b[9],x}:{b[10]*256+b[11],x}:{b[12]*256+b[13],x}:{b[14]*256+b[15],x}</DisplayString>
+  </Type>
+  <Type Name="mDNSv6Addr">
+    <DisplayString>{b[0]*256+b[1],x}:{b[2]*256+b[3],x}:{b[4]*256+b[5],x}:{b[6]*256+b[7],x}:{b[8]*256+b[9],x}:{b[10]*256+b[11],x}:{b[12]*256+b[13],x}:{b[14]*256+b[15],x}</DisplayString>
+  </Type>
+
+  <!-- mDNSAddr : tagged union (type: 0=None, 4=IPv4, 6=IPv6) -->
+  <Type Name="mDNSAddr">
+    <DisplayString Condition="type == 0">&lt;none&gt;</DisplayString>
+    <DisplayString Condition="type == 4">{ip.v4.b[0],d}.{ip.v4.b[1],d}.{ip.v4.b[2],d}.{ip.v4.b[3],d}</DisplayString>
+    <DisplayString Condition="type == 6">{ip.v6}</DisplayString>
+    <DisplayString>mDNSAddr type={type}</DisplayString>
+    <Expand>
+      <Item Name="type">type</Item>
+      <Item Name="v4" Condition="type == 4">ip.v4</Item>
+      <Item Name="v6" Condition="type == 6">ip.v6</Item>
+    </Expand>
+  </Type>
+
+  <!-- domainlabel : a single DNS label, c[0] = length, c[1..] = characters -->
+  <Type Name="domainlabel">
+    <DisplayString Condition="c[0] == 0">&lt;empty&gt;</DisplayString>
+    <DisplayString>{&amp;c[1],[c[0]]s}</DisplayString>
+    <StringView>&amp;c[1],[c[0]]s</StringView>
+  </Type>
+
+  <!-- domainname : DNS wire-format name (sequence of length-prefixed labels, zero-terminated).
+       natvis can't concatenate the dotted form across variable-length labels, so we preview the
+       first label and expose the raw bytes for inspection. -->
+  <Type Name="domainname">
+    <DisplayString Condition="c[0] == 0">. (root)</DisplayString>
+    <DisplayString>{&amp;c[1],[c[0]]s}. ... (wire-format)</DisplayString>
+    <Expand>
+      <Item Name="first label">&amp;c[1],[c[0]]s</Item>
+      <Item Name="first label len">c[0]</Item>
+      <Synthetic Name="[bytes]">
+        <DisplayString>length-prefixed labels (expand)</DisplayString>
+        <Expand>
+          <ArrayItems>
+            <Size>256</Size>
+            <ValuePointer>c</ValuePointer>
+          </ArrayItems>
+        </Expand>
+      </Synthetic>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
